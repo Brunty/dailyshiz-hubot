@@ -4,7 +4,8 @@
 module.exports = (robot) ->
 
   robot.hear /baby.*monkey/i, (res) ->
-    res.send "https://www.youtube.com/watch?v=5_sfnQDr1-o"
+    robot.emit 'rate-limit', 'babymonkey', 21600, () ->
+      res.send "https://www.youtube.com/watch?v=5_sfnQDr1-o"
 
   robot.hear /badger/i, (res) ->
     res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"

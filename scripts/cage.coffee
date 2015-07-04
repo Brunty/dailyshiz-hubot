@@ -18,6 +18,16 @@ module.exports = (robot) ->
       .get() (err, res, body) ->
         msg.send JSON.parse(body).cage
 
+  robot.respond /cage quote/i, (msg) ->
+    msg.http("http://cage.mfyu.co.uk/quote")
+      .get() (err, res, body) ->
+        msg.send JSON.parse(body).cage_quote
+
+  robot.respond /cage ipsum/i, (msg) ->
+    msg.http("http://cage.mfyu.co.uk/ipsum")
+      .get() (err, res, body) ->
+        msg.send JSON.parse(body).cage_ipsum
+
   robot.respond /cage bomb( (\d+))?/i, (msg) ->
     count = msg.match[2] || 5
     msg.http("http://cage.mfyu.co.uk/bomb/" + count)

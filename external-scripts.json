@@ -9,5 +9,6 @@
   "hubot-redis-brain",
   "hubot-rules",
   "hubot-shipit",
-  "hubot-rate-limiter"
+  "hubot-rate-limiter",
+  "hubot-markov"
 ]

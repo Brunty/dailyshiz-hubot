@@ -10,5 +10,8 @@
   "hubot-rules",
   "hubot-shipit",
   "hubot-rate-limiter",
-  "hubot-markov"
+  "hubot-markov",
+  "hubot-has-no-idea",
+  "hubot-pokedex",
+  "hubot-motivate"
 ]

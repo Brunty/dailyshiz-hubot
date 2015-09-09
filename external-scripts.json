@@ -13,5 +13,6 @@
   "hubot-markov",
   "hubot-has-no-idea",
   "hubot-pokedex",
+  "hubot-response",
   "hubot-motivate"
 ]

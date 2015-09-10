@@ -55,14 +55,8 @@ getWild = (msg) ->
         msg.send "no pokemon are in this location"
         return
 
-      msg.send "retrieved pokedex"
-      msg.send "#{pokedex}"
-
       # got our pokedex, find a random entry, then invoke getPokemon
       pokemon = pokedex.pokemon[Math.floor(Math.random() * pokedex.pokemon.length)]
-      msg.send "#{pokemon}"
-
-      msg.send "Getting pokemon from http://pokeapi.co/#{pokemon.resource_uri}"
 
       fetchPokemon(msg, "http://pokeapi.co/#{pokemon.resource_uri}")
 

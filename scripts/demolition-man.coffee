@@ -64,12 +64,12 @@ module.exports = (robot) ->
       total = total + user.morality_credits if user.morality_credits
 
     score.sort (a, b) ->
-      return a.score == b.score ? 0 : +(a.score > b.score) || -1;
+      return a.score - b.score
 
-    response += "There have been a total of #{total} morality credits issued.\n"
-    response += "The most immoral person is #{score[0].name}\n" if total > 0
-    response += "The least immoral person is #{score[score.length-1].name}\n" if score.length > 1
-    response += "On average an immoral person has been immoral #{total/score.length} times" if score.length > 1
+    response += "There have been a total of #{total} morality credits issued."
+    response += "\nThe most immoral person is #{score[0].name}" if total > 0
+    response += "\nThe least immoral person is #{score[score.length-1].name}" if score.length > 1
+    response += "\nOn average an immoral person has been immoral #{total/score.length} times" if score.length > 1
 
     msg.send response
     

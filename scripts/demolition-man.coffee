@@ -8,6 +8,8 @@
 #   None
 #
 # Commands:
+#   hubot morality stats - Show statistics on the immorality of the users.
+#   hubot morality list - Show the list of immoral people.
 #
 # Author:
 #   whitman, jan0sch
@@ -54,7 +56,7 @@ module.exports = (robot) ->
 
     msg.send "#{username}, you have been fined one credit for a violation of the verbal morality statute."
 
-  robot.respond /morality credits/i, (msg) ->
+  robot.respond /morality stats/i, (msg) ->
     score = []
     total = 0
     response = ""
@@ -72,12 +74,12 @@ module.exports = (robot) ->
     response += "\nOn average an immoral person has been immoral #{total/score.length} times" if score.length > 1
 
     msg.send response
-    
-    robot.respond /list sinners/i, (msg) ->
-    response = ""
-    
-    response += "The naughty people are:\n"
-    for own key, user of robot.brain.users()
-      response += "#{user.name}: #{user.morality_credits} credits\n"
 
-    msg.send response
+    robot.respond /morality list/i, (msg) ->
+      response = ""
+
+      response += "The naughty people are:\n"
+      for own key, user of robot.brain.users()
+        response += "#{user.name}: #{user.morality_credits} credits\n"
+
+      msg.send response

@@ -75,11 +75,19 @@ module.exports = (robot) ->
 
     msg.send response
 
-    robot.respond /morality list/i, (msg) ->
-      response = ""
+  robot.respond /morality list/i, (msg) ->
+    score = []
+    response = ""
 
-      response += "The naughty people are:\n"
-      for own key, user of robot.brain.users()
-        response += "#{user.name}: #{user.morality_credits} credits\n"
+    for own key, user of robot.brain.users()
+      score.push({ name: user.name, score: user.morality_credits }) if user.morality_credits
 
-      msg.send response
+    score.sort (a, b) ->
+      return a.score - b.score
+
+    response += "The immoral people are:" if score.length >= 1
+
+    for own key, user of score
+      response += "\n#{user.name}: #{user.score} credits"
+
+    msg.send response

@@ -74,10 +74,10 @@ module.exports = (robot) ->
     msg.send response
     
     robot.respond /list sinners/i, (msg) ->
-    response = ""
-    
-    response += "The naughty people are:\n"
-    for own key, user of robot.brain.users()
-      response += "#{user.name}: #{user.morality_credits} credits\n"
+      response = ""
+      
+      response += "The naughty people are:\n"
+      for own key, user of robot.brain.users()
+        response += "#{user.name}: #{user.morality_credits} credits\n"
 
-    msg.send response
+      msg.send response

@@ -90,4 +90,6 @@ module.exports = (robot) ->
     for own key, user of score
       response += "\n#{user.name}: #{user.score} credits"
 
+    response += "\n\nIf your name is not mentioned you should conisder yourself an upstanding citizen."
+
     msg.send response

@@ -66,7 +66,7 @@ module.exports = (robot) ->
       total = total + user.morality_credits if user.morality_credits
 
     score.sort (a, b) ->
-      return a.score - b.score
+      return b.score - a.score
 
     response += "There have been a total of #{total} morality credits issued."
     response += "\nThe most immoral person is #{score[0].name}" if total > 0
@@ -83,7 +83,7 @@ module.exports = (robot) ->
       score.push({ name: user.name, score: user.morality_credits }) if user.morality_credits
 
     score.sort (a, b) ->
-      return a.score - b.score
+      return b.score - a.score
 
     response += "The immoral people are:" if score.length >= 1
 

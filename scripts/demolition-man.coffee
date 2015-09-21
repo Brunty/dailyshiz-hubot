@@ -43,7 +43,7 @@ module.exports = (robot) ->
     'twat',
     'wank'
   ]
-  regex = new RegExp('(?:^|\\s)(' + words.join('|') + ')(?:\\s|\\.|\\?|!|$)', 'i');
+  regex = new RegExp('(' + words.join('|') + ')', 'i');
 
   robot.hear regex, (msg) ->
     username = msg.message.user.name
@@ -85,7 +85,7 @@ module.exports = (robot) ->
     score.sort (a, b) ->
       return b.score - a.score
 
-    response += "The immoral people are:" if score.length >= 1
+    response += "The immoral people are:\n" if score.length >= 1
 
     for own key, user of score
       response += "\n#{user.name}: #{user.score} credits"

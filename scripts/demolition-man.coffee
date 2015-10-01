@@ -19,6 +19,7 @@ module.exports = (robot) ->
   words = [
     'arse',
     'ass',
+    'asshole',
     'bastard',
     'bloody',
     'bitch',
@@ -40,6 +41,7 @@ module.exports = (robot) ->
     'goddamn',
     'piss',
     'shit',
+    'shitcunt',
     'twat',
     'wank'
   ]

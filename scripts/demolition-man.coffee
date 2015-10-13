@@ -47,7 +47,7 @@ module.exports = (robot) ->
     'twat',
     'wank'
   ]
-  regex = new RegExp('(?:^|\\s)(' + words.join('|') + ')(?:\\s|\\.|\\?|!|$)', 'i');
+  regex = new RegExp('(?:^|\\s)(' + words.join('|') + ')(?:\\s|\\.|,|;|\\?|!|$)', 'i');
 
   robot.hear regex, (msg) ->
     username = msg.message.user.name

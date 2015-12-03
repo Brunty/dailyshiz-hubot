@@ -4,3 +4,4 @@ node_modules
 .env
 Vagrantfile
 users.list.json
+.vagrant

@@ -16,7 +16,7 @@
 
 module.exports = (robot) ->
 
-  words = [
+  words = robot.brain.get('naughtyWordsList') or [
     'arse',
     'ass',
     'asshole',
@@ -47,7 +47,7 @@ module.exports = (robot) ->
     'twat',
     'wank'
   ]
-  regex = new RegExp('(?:^|\\s)(' + words.join('|') + ')(?:\\s|\\.|,|;|\\?|!|$)', 'i');
+  regex = new RegExp('(?:^|\\s)(' + words.join('|') + ')(?:\\b|$)', 'ig');
 
   robot.hear regex, (msg) ->
     username = msg.message.user.name
@@ -55,10 +55,12 @@ module.exports = (robot) ->
     if users.length is 1
       user = users[0]
 
-      user_credits = user.morality_credits * 1 or 0
-      user.morality_credits = user_credits + 1
+      fined = msg.match.length or 1
 
-    msg.send "#{username}, you have been fined one credit for a violation of the verbal morality statute."
+      user_credits = user.morality_credits * 1 or 0
+      user.morality_credits = user_credits + fined
+
+    msg.send "#{username}, you have been fined #{fined} credit(s) for a violation of the verbal morality statute."
 
   robot.respond /morality stats/i, (msg) ->
     score = []
@@ -97,3 +99,27 @@ module.exports = (robot) ->
     response += "\n\nIf your name is not mentioned you should conisder yourself an upstanding citizen."
 
     msg.send response
+
+  robot.respond /morality add ?(.*)/i, (msg) ->
+    naughty = msg.match[1].trim()
+    response = ""
+
+    if robot.auth.hasRole(msg.envelope.user,"morality")
+      if naughty not in words
+        #do adding to the list
+        response += "'#{naughty}' added to the naughty list"
+        words.push(naughty)
+        robot.brain.set('naughtyWordsList',words)	# make sure the list is persisted!
+
+        # update the regex to include the new word
+        regex = new RegExp('(?:^|\\s)(' + words.join('|') + ')(?:\\s|\\.|,|;|\\?|!|$)', 'i');
+      else
+        response += "'#{naughty}' is already on the naughty list"
+    else
+      response += "I'm sorry, only the morality police can add new naughties to the list"
+
+    msg.send response
+
+  robot.respond /morality show/i, (msg) ->
+    msg.send "The naughty words are:\n*#{words.join('*, *')}*."
+

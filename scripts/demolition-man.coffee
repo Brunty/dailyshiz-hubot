@@ -65,7 +65,14 @@ module.exports = (robot) ->
       user_credits = user.morality_credits * 1 or 0
       user.morality_credits = user_credits + fined
 
-    msg.send "#{username}, you have been fined #{fined} credit(s) for a violation of the verbal morality statute."
+    response = "#{username}, you have been fined #{fined} "
+    if fined != 1
+      response += "credits "
+    else
+      response += "credit "
+    response += "for a violation of the verbal morality statute."
+
+    msg.send response
 
   robot.respond /morality stats/i, (msg) ->
     score = []

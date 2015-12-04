@@ -126,5 +126,12 @@ module.exports = (robot) ->
     msg.send response
 
   robot.respond /morality show/i, (msg) ->
-    msg.send "The naughty words are:\n*#{words.join('*, *')}*."
+    response = ""
+
+    if robot.auth.hasRole(msg.envelope.user,"morality")
+      response += "The naughty words are:\n*#{words.join('*, *')}*."
+    else
+      response += "You're not allowed to know what the restricted words are"
+
+    msg.send response
 

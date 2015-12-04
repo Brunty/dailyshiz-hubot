@@ -10,9 +10,14 @@
 # Commands:
 #   hubot morality stats - Show statistics on the immorality of the users.
 #   hubot morality list - Show the list of immoral people.
+#   hubot morality show - Shows the current list of naughty words
+#   hubot morality add <word> - Adds a new word to the list, but only if the user has the 'morality' role
 #
 # Author:
 #   whitman, jan0sch
+#
+# Modifications:
+#   alex-wells
 
 module.exports = (robot) ->
 
@@ -112,7 +117,7 @@ module.exports = (robot) ->
         robot.brain.set('naughtyWordsList',words)	# make sure the list is persisted!
 
         # update the regex to include the new word
-        regex = new RegExp('(?:^|\\s)(' + words.join('|') + ')(?:\\s|\\.|,|;|\\?|!|$)', 'i');
+        regex = new RegExp('(?:^|\\s)(' + words.join('|') + ')(?:\\b|$)', 'ig');
       else
         response += "'#{naughty}' is already on the naughty list"
     else

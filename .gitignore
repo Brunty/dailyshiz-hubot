@@ -2,6 +2,5 @@ node_modules
 .DS_Store*
 .hubot_history
 .env
+.vagrant/
 Vagrantfile
-users.list.json
-.vagrant

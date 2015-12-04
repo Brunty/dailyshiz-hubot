@@ -20,39 +20,50 @@
 #   alex-wells
 
 module.exports = (robot) ->
+  class moralityList
+    @robot = null
 
-  words = robot.brain.get('naughtyWordsList') or [
-    'arse',
-    'ass',
-    'asshole',
-    'bastard',
-    'bloody',
-    'bitch',
-    'bugger',
-    'bollocks',
-    'bullshit',
-    'cock',
-    'crap',
-    'crapping',
-    'cunt',
-    'damn',
-    'damnit',
-    'dick',
-    'douche',
-    'douchecanoe',
-    'fuck',
-    'fucked',
-    'fucking',
-    'fucknugget',
-    'goddam',
-    'goddamn',
-    'piss',
-    'shit',
-    'shitcunt',
-    'twat',
-    'wank'
-  ]
-  regex = new RegExp('(?:^|\\s)(' + words.join('|') + ')(?:\\b|$)', 'ig');
+    words: ->
+      throw new Error('Robot is not set up') unless @robot
+      @robot.brain.data.moralityList or= [
+        'arse',
+        'ass',
+        'asshole',
+        'bastard',
+        'bloody',
+        'bitch',
+        'bugger',
+        'bollocks',
+        'bullshit',
+        'cock',
+        'crap',
+        'crapping',
+        'cunt',
+        'damn',
+        'damnit',
+        'dick',
+        'douche',
+        'douchecanoe',
+        'fuck',
+        'fucked',
+        'fucking',
+        'fucknugget',
+        'goddam',
+        'goddamn',
+        'piss',
+        'shit',
+        'shitcunt',
+        'twat',
+        'wank'
+      ] # set the default list here
+
+  robot.moralityList = new moralityList
+  robot.moralityList.robot = robot	# confusing, i know!
+ 
+
+#  words = robot.brain.get('naughtyWordsList') or []
+
+  regex = new RegExp('(?:^|\\s)(' + robot.moralityList.words().join('|') + ')(?:\\b|$)', 'ig');
 
   robot.hear regex, (msg) ->
     username = msg.message.user.name
@@ -117,14 +128,13 @@ module.exports = (robot) ->
     response = ""
 
     if robot.auth.hasRole(msg.envelope.user,"morality")
-      if naughty not in words
+      if naughty not in robot.moralityList.words()
         #do adding to the list
         response += "'#{naughty}' added to the naughty list"
-        words.push(naughty)
-        robot.brain.set('naughtyWordsList',words)	# make sure the list is persisted!
+        robot.moralityList.words().push(naughty)
 
         # update the regex to include the new word
-        regex = new RegExp('(?:^|\\s)(' + words.join('|') + ')(?:\\b|$)', 'ig');
+        regex = new RegExp('(?:^|\\s)(' + robot.moralityList.words().join('|') + ')(?:\\b|$)', 'ig');
       else
         response += "'#{naughty}' is already on the naughty list"
     else
@@ -136,9 +146,29 @@ module.exports = (robot) ->
     response = ""
 
     if robot.auth.hasRole(msg.envelope.user,"morality")
-      response += "The naughty words are:\n*#{words.join('*, *')}*."
+#      if words.length > 0
+#        response += "There are no naughty words at this time."
+#      else
+        response += "The naughty words are:\n*#{robot.moralityList.words().join('*, *')}*."
     else
       response += "You're not allowed to know what the restricted words are"
+
+    msg.send response
+
+  robot.respond /morality remove ?(.*)/i, (msg) ->
+    response = ""
+    word = msg.match[1].trim()
+
+    # is the user authorised to do so?
+    if robot.auth.hasRole(msg.envelope.user,"morality")
+      robot.moralityList.words().splice(index,1) for index, value of robot.moralityList.words() when value in ["#{word}"]
+
+      # persist it
+ #     robot.brain.set('naughtyWordsList',words)
+
+      response += "Removed '#{word}' from the naughty list"
+    else
+      response += "You're not allowed to remove words from the morality statute"
 
     msg.send response
 

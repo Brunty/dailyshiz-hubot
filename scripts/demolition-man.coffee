@@ -19,55 +19,62 @@
 # Modifications:
 #   alex-wells
 
-module.exports = (robot) ->
-  class moralityList
-    @robot = null
+class moralityList
+  @listenerIdx = -1
+  @robot = null
 
-    words: ->
-      throw new Error('Robot is not set up') unless @robot
-      @robot.brain.data.moralityList or= [
-        'arse',
-        'ass',
-        'asshole',
-        'bastard',
-        'bloody',
-        'bitch',
-        'bugger',
-        'bollocks',
-        'bullshit',
-        'cock',
-        'crap',
-        'crapping',
-        'cunt',
-        'damn',
-        'damnit',
-        'dick',
-        'douche',
-        'douchecanoe',
-        'fuck',
-        'fucked',
-        'fucking',
-        'fucknugget',
-        'goddam',
-        'goddamn',
-        'piss',
-        'shit',
-        'shitcunt',
-        'twat',
-        'wank'
-      ] # set the default list here
+  # start off the moralityList
+  constructor: (@robot) ->
+    # populate the list if it doesn't already exist
+    @robot.brain.data.moralityList or= ['arse', 'ass', 'asshole', 'bastard', 'bloody', 'bitch', 'bugger', 'bollocks', 'bullshit', 'cock',
+      'crap', 'crapping', 'cunt', 'damn', 'damnit', 'dick', 'douche', 'douchecanoe', 'fuck', 'fucked', 'fucking', 'fucknugget', 'goddam',
+      'goddamn', 'piss', 'shit', 'shitcunt', 'twat', 'wank' ] # set the default list here
+      
+    #set up all the responders, but only once we've got the list out of redis:
+   # @robot.brain.on 'loaded', (data) =>
+#      @robot.respond("/morality stats/i", @stats)
+#      @robot.respond("/morality list/i", @list)
+#      @robot.respond("/morality show/i", @show)
+#      @robot.respond("/morality add ?(.*)/i", @addWord)
+#      @robot.respond("/morality remove ?(.*)/i", @delWord)
+    #@rebuild  # sets up the regex for the current list, ready to fine people!
+    
 
-  robot.moralityList = new moralityList
-  robot.moralityList.robot = robot	# confusing, i know!
- 
+  # gets the list of words
+  words: ->
+    @robot.brain.data.moralityList 
 
-#  words = robot.brain.get('naughtyWordsList') or []
-
-  regex = new RegExp('(?:^|\\s)(' + robot.moralityList.words().join('|') + ')(?:\\b|$)', 'ig');
-
-  robot.hear regex, (msg) ->
-    username = msg.message.user.name
-    users = robot.brain.usersForFuzzyName(username)
+  # adds a word to the list
+  add: (word) ->
+    @words().push(word)
+    @robot.moralityList.rebuild
+    
+  # removes a word from the list
+  del: (word) ->
+    index = @words().indexOf(word)
+    if index isnt -1
+      @words().splice(index, 1)
+      @robot.moralityList.rebuild
+    
+  #rebuild the regex and update the listener      
+  rebuild: () ->
+    @robot.logger.debug 'actually in rebuild()'
+    
+    # remove the old listener    
+    if @robot.moralityList.listenerIdx > -1
+      @robot.listeners.splice(@listenerIdx, 1)
+      
+    # build the new regex
+    regex = new RegExp('(?:^|\\s)(' + @robot.moralityList.words().join('|') + ')(?:\\b|$)', 'ig');
+    
+    # add the listener to the robot
+    @robot.hear regex, @robot.moralityList.fine
+    @listenerIdx = @robot.listeners.length - 1
+        
+  # does the actual fining of users
+  fine: (msg) ->
+    username = msg.message.user.name   
+    users = @robot.brain.usersForFuzzyName(username)
     if users.length is 1
       user = users[0]
 
@@ -84,13 +91,15 @@ module.exports = (robot) ->
     response += "for a violation of the verbal morality statute."
 
     msg.send response
-
-  robot.respond /morality stats/i, (msg) ->
+      
+  # displays current statistics 
+  # robot.respond /morality stats/i, (msg) ->
+  stats: (msg) ->
     score = []
     total = 0
     response = ""
 
-    for own key, user of robot.brain.users()
+    for own key, user of @robot.brain.users()
       score.push({ name: user.name, score: user.morality_credits }) if user.morality_credits
       total = total + user.morality_credits if user.morality_credits
 
@@ -104,11 +113,13 @@ module.exports = (robot) ->
 
     msg.send response
 
-  robot.respond /morality list/i, (msg) ->
+  # shows the morality list
+  # robot.respond /morality list/i, (msg) ->
+  list: (msg) ->
     score = []
     response = ""
 
-    for own key, user of robot.brain.users()
+    for own key, user of @robot.brain.users()
       score.push({ name: user.name, score: user.morality_credits }) if user.morality_credits
 
     score.sort (a, b) ->
@@ -123,52 +134,68 @@ module.exports = (robot) ->
 
     msg.send response
 
-  robot.respond /morality add ?(.*)/i, (msg) ->
-    naughty = msg.match[1].trim()
+  # lists the words currently on the list
+  # robot.respond /morality show/i, (msg) ->
+  show: (msg) ->
     response = ""
 
-    if robot.auth.hasRole(msg.envelope.user,"morality")
-      if naughty not in robot.moralityList.words()
-        #do adding to the list
-        response += "'#{naughty}' added to the naughty list"
-        robot.moralityList.words().push(naughty)
-
-        # update the regex to include the new word
-        regex = new RegExp('(?:^|\\s)(' + robot.moralityList.words().join('|') + ')(?:\\b|$)', 'ig');
+    if @robot.auth.hasRole(msg.envelope.user,"morality")
+      if @robot.moralityList.words().length == 0
+        response += "There are no finable words at this time."
       else
-        response += "'#{naughty}' is already on the naughty list"
+        response += "The finable words are:\n*#{@robot.moralityList.words().join('*, *')}*."
     else
-      response += "I'm sorry, only the morality police can add new naughties to the list"
+      response += "You're not allowed to know what the finable words are"
 
     msg.send response
-
-  robot.respond /morality show/i, (msg) ->
+    
+  # adds a new word to the list, rebuilding the regex/listener as we go:
+  # robot.respond /morality add ?(.*)/i, (msg) ->
+  addWord: (msg) ->
+    newSwear = msg.match[1].trim()
     response = ""
 
-    if robot.auth.hasRole(msg.envelope.user,"morality")
-#      if words.length > 0
-#        response += "There are no naughty words at this time."
-#      else
-        response += "The naughty words are:\n*#{robot.moralityList.words().join('*, *')}*."
+    if @robot.auth.hasRole(msg.envelope.user,"morality")
+      if newSwear not in @robot.moralityList.words()
+        #do adding to the list
+        @robot.moralityList.add(newSwear)
+        response += "'#{newSwear}' has been added to the finable words list"
+      else
+        response += "'#{newSwear}' is already on the finable words list"
     else
-      response += "You're not allowed to know what the restricted words are"
+      response += "I'm sorry, only the morality police can add new words to the list"
 
     msg.send response
 
-  robot.respond /morality remove ?(.*)/i, (msg) ->
+  # removes a word from the list
+  # robot.respond /morality remove ?(.*)/i, (msg) ->
+  delWord: (msg) ->
     response = ""
     word = msg.match[1].trim()
 
     # is the user authorised to do so?
-    if robot.auth.hasRole(msg.envelope.user,"morality")
-      robot.moralityList.words().splice(index,1) for index, value of robot.moralityList.words() when value in ["#{word}"]
-
-      # persist it
- #     robot.brain.set('naughtyWordsList',words)
-
-      response += "Removed '#{word}' from the naughty list"
+    if @robot.auth.hasRole(msg.envelope.user,"morality")
+      if word not in @robot.moralityList.words()
+        response += "#{word} isn't on the finable words list"
+      else
+        @robot.moralityList.del(word)
+        response += "Removed '#{word}' from the finable words list"
     else
-      response += "You're not allowed to remove words from the morality statute"
+      response += "You're not allowed to remove entries from the finable words list"
 
     msg.send response
 
+module.exports = (robot) ->
+  # set everything up
+  robot.moralityList = new moralityList(robot)
+
+  robot.respond "/morality stats/i", robot.moralityList.stats
+  robot.respond "/morality list/i", robot.moralityList.list
+  robot.respond "/morality show/i", robot.moralityList.show
+  robot.respond "/morality add ?(.*)/i", robot.moralityList.addWord
+  robot.respond "/morality remove ?(.*)/i", robot.moralityList.delWord
+  robot.moralityList.rebuild  # sets up the regex for the current list, ready to fine people!
+  
+  #regex = new RegExp('(?:^|\\s)(' + robot.moralityList.words().join('|') + ')(?:\\b|$)', 'ig');
+  #robot.hear regex, robot.moralityList.fine
+  

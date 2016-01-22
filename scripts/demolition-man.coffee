@@ -31,13 +31,13 @@ class moralityList
       'goddamn', 'piss', 'shit', 'shitcunt', 'twat', 'wank' ] # set the default list here
       
     #set up all the responders, but only once we've got the list out of redis:
-   # @robot.brain.on 'loaded', (data) =>
+#    @robot.brain.on 'loaded', (data) =>
 #      @robot.respond("/morality stats/i", @stats)
 #      @robot.respond("/morality list/i", @list)
 #      @robot.respond("/morality show/i", @show)
 #      @robot.respond("/morality add ?(.*)/i", @addWord)
 #      @robot.respond("/morality remove ?(.*)/i", @delWord)
-    #@rebuild  # sets up the regex for the current list, ready to fine people!
+#      @rebuild  # sets up the regex for the current list, ready to fine people!
     
 
   # gets the list of words
@@ -47,25 +47,27 @@ class moralityList
   # adds a word to the list
   add: (word) ->
     @words().push(word)
-    @robot.moralityList.rebuild
+#    @robot.logger.debug 'starting rebuild'
+    @robot.moralityList.rebuild()
     
   # removes a word from the list
   del: (word) ->
     index = @words().indexOf(word)
     if index isnt -1
       @words().splice(index, 1)
-      @robot.moralityList.rebuild
+#      @robot.logger.debug 'starting rebuild'
+      @robot.moralityList.rebuild()
     
   #rebuild the regex and update the listener      
   rebuild: () ->
-    @robot.logger.debug 'actually in rebuild()'
+#    @robot.logger.debug 'actually in rebuild()'
     
     # remove the old listener    
     if @robot.moralityList.listenerIdx > -1
       @robot.listeners.splice(@listenerIdx, 1)
       
     # build the new regex
-    regex = new RegExp('(?:^|\\s)(' + @robot.moralityList.words().join('|') + ')(?:\\b|$)', 'ig');
+    regex = new RegExp('(?:^|\\s)(' + @robot.moralityList.words().join('|') + ')(?:\\b|$)', 'ig')
     
     # add the listener to the robot
     @robot.hear regex, @robot.moralityList.fine
@@ -194,7 +196,7 @@ module.exports = (robot) ->
   robot.respond "/morality show/i", robot.moralityList.show
   robot.respond "/morality add ?(.*)/i", robot.moralityList.addWord
   robot.respond "/morality remove ?(.*)/i", robot.moralityList.delWord
-  robot.moralityList.rebuild  # sets up the regex for the current list, ready to fine people!
+  robot.moralityList.rebuild()  # sets up the regex for the current list, ready to fine people!
   
   #regex = new RegExp('(?:^|\\s)(' + robot.moralityList.words().join('|') + ')(?:\\b|$)', 'ig');
   #robot.hear regex, robot.moralityList.fine

@@ -194,8 +194,8 @@ module.exports = (robot) ->
   robot.respond "/morality stats/i", robot.moralityList.stats
   robot.respond "/morality list/i", robot.moralityList.list
   robot.respond "/morality show/i", robot.moralityList.show
-  robot.respond "/morality add ?(.*)/i", robot.moralityList.addWord
-  robot.respond "/morality remove ?(.*)/i", robot.moralityList.delWord
+  robot.respond "/morality add ([^\\s]+)$/i", robot.moralityList.addWord
+  robot.respond "/morality remove ([^\\s]+)$/i", robot.moralityList.delWord
   robot.moralityList.rebuild()  # sets up the regex for the current list, ready to fine people!
   
   #regex = new RegExp('(?:^|\\s)(' + robot.moralityList.words().join('|') + ')(?:\\b|$)', 'ig');

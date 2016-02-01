@@ -188,6 +188,29 @@ class moralityList
 
     msg.send response
 
+  # set a users credit value
+  # /morality set credit ([^\\s]+) ([\\d]{1,4})/i, (msg) ->
+  updateCredit: (msg) ->
+    response = ""
+    user = msg.match[1].trim()
+    credit = msg.match[2].trim()
+
+    # is the user authorised to do so?
+    if @robot.auth.hasRole(msg.envelope.user,"admin")
+      users = @robot.brain.usersForFuzzyName(user)
+
+      if users.length is 1
+        user = users[0]
+
+        user.morality_credits = credit
+        response += "Set #{user.name}'s credit balance to #{credit}"
+      else
+        response += "User #{user} has not been found"
+    else
+      response += "You're not allowed to set the morality credits of a user"
+
+    msg.send response
+
 module.exports = (robot) ->
   # set everything up
   robot.moralityList = new moralityList(robot)
@@ -197,8 +220,8 @@ module.exports = (robot) ->
   robot.respond "/morality show/i", robot.moralityList.show
   robot.respond "/morality add ([^\\s]+)$/i", robot.moralityList.addWord
   robot.respond "/morality remove ([^\\s]+)$/i", robot.moralityList.delWord
+  robot.respond "/morality set credit ([^\\s]+) ([\\d]{1,4})/i", robot.moralityList.updateCredit
   robot.moralityList.rebuild()  # sets up the regex for the current list, ready to fine people!
-  
+
   #regex = new RegExp('(?:^|\\s)(' + robot.moralityList.words().join('|') + ')(?:\\b|$)', 'ig');
   #robot.hear regex, robot.moralityList.fine
-  

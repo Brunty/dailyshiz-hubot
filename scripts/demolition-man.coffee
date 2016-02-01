@@ -12,6 +12,7 @@
 #   hubot morality list - Show the list of immoral people.
 #   hubot morality show - Shows the current list of naughty words
 #   hubot morality add <word> - Adds a new word to the list, but only if the user has the 'morality' role
+#   hubot morality remove <word> - Removes a word from the list, but only if the user has the 'morality' role
 #
 # Author:
 #   whitman, jan0sch

@@ -30,7 +30,7 @@ class moralityList
     @robot.brain.data.moralityList or= ['arse', 'ass', 'asshole', 'bastard', 'bloody', 'bitch', 'bugger', 'bollocks', 'bullshit', 'cock',
       'crap', 'crapping', 'cunt', 'damn', 'damnit', 'dick', 'douche', 'douchecanoe', 'fuck', 'fucked', 'fucking', 'fucknugget', 'goddam',
       'goddamn', 'piss', 'shit', 'shitcunt', 'twat', 'wank' ] # set the default list here
-      
+
     #set up all the responders, but only once we've got the list out of redis:
 #    @robot.brain.on 'loaded', (data) =>
 #      @robot.respond("/morality stats/i", @stats)
@@ -39,18 +39,18 @@ class moralityList
 #      @robot.respond("/morality add ?(.*)/i", @addWord)
 #      @robot.respond("/morality remove ?(.*)/i", @delWord)
 #      @rebuild  # sets up the regex for the current list, ready to fine people!
-    
+
 
   # gets the list of words
   words: ->
-    @robot.brain.data.moralityList 
+    @robot.brain.data.moralityList
 
   # adds a word to the list
   add: (word) ->
     @words().push(word)
 #    @robot.logger.debug 'starting rebuild'
     @robot.moralityList.rebuild()
-    
+
   # removes a word from the list
   del: (word) ->
     index = @words().indexOf(word)
@@ -58,25 +58,25 @@ class moralityList
       @words().splice(index, 1)
 #      @robot.logger.debug 'starting rebuild'
       @robot.moralityList.rebuild()
-    
-  #rebuild the regex and update the listener      
+
+  #rebuild the regex and update the listener
   rebuild: () ->
 #    @robot.logger.debug 'actually in rebuild()'
-    
-    # remove the old listener    
+
+    # remove the old listener
     if @robot.moralityList.listenerIdx > -1
       @robot.listeners.splice(@listenerIdx, 1)
-      
+
     # build the new regex
     regex = new RegExp('(?:^|\\s)(' + @robot.moralityList.words().join('|') + ')(?:\\b|$)', 'ig')
-    
+
     # add the listener to the robot
     @robot.hear regex, @robot.moralityList.fine
     @listenerIdx = @robot.listeners.length - 1
-        
+
   # does the actual fining of users
   fine: (msg) ->
-    username = msg.message.user.name   
+    username = msg.message.user.name
     users = @robot.brain.usersForFuzzyName(username)
     if users.length is 1
       user = users[0]
@@ -94,8 +94,8 @@ class moralityList
     response += "for a violation of the verbal morality statute."
 
     msg.send response
-      
-  # displays current statistics 
+
+  # displays current statistics
   # robot.respond /morality stats/i, (msg) ->
   stats: (msg) ->
     score = []
@@ -151,7 +151,7 @@ class moralityList
       response += "You're not allowed to know what the finable words are"
 
     msg.send response
-    
+
   # adds a new word to the list, rebuilding the regex/listener as we go:
   # robot.respond /morality add ?(.*)/i, (msg) ->
   addWord: (msg) ->

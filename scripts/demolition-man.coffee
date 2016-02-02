@@ -104,14 +104,14 @@ class moralityList
 
     for own key, user of @robot.brain.users()
       score.push({ name: user.name, score: user.morality_credits }) if user.morality_credits
-      total = total + user.morality_credits if user.morality_credits
+      total += user.morality_credits if user.morality_credits
 
     score.sort (a, b) ->
       return b.score - a.score
 
     response += "There have been a total of #{total} morality credits issued."
-    response += "\nThe most immoral person is #{score[0].name}" if total > 0
-    response += "\nThe least immoral person is #{score[score.length-1].name}" if score.length > 1
+    response += "\nThe most immoral person is #{score[0].name} with #{score[0].score} credits" if total > 0
+    response += "\nThe least immoral person is #{score[score.length-1].name} with #{score[score.length-1].name} credits" if score.length > 1
     response += "\nOn average an immoral person has been immoral #{total/score.length} times" if score.length > 1
 
     msg.send response

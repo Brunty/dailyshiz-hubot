@@ -202,7 +202,7 @@ class moralityList
       if users.length is 1
         user = users[0]
 
-        user.morality_credits = credit
+        user.morality_credits = credit * 1  # ensure that this is a number!
         response += "Set #{user.name}'s credit balance to #{credit}"
       else
         response += "User #{user} has not been found"

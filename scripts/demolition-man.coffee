@@ -111,7 +111,7 @@ class moralityList
 
     response += "There have been a total of #{total} morality credits issued."
     response += "\nThe most immoral person is #{score[0].name} with #{score[0].score} credits" if total > 0
-    response += "\nThe least immoral person is #{score[score.length-1].name} with #{score[score.length-1].name} credits" if score.length > 1
+    response += "\nThe least immoral person is #{score[score.length-1].name} with #{score[score.length-1].score} credits" if score.length > 1
     response += "\nOn average an immoral person has been immoral #{total/score.length} times" if score.length > 1
 
     msg.send response

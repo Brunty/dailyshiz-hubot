@@ -104,7 +104,7 @@ class moralityList
 
     for own key, user of @robot.brain.users()
       score.push({ name: user.name, score: user.morality_credits }) if user.morality_credits
-      total += user.morality_credits if user.morality_credits
+      total = total + user.morality_credits if user.morality_credits
 
     score.sort (a, b) ->
       return b.score - a.score
